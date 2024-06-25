@@ -15,26 +15,38 @@ form.addEventListener('submit', (e)=>{
 })
 
 const callAPI=(city, country)=>{
-    const apiId ='7fd9ba295d2228d7c60ae6dedc1375f9';
+    
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${apiId}`;
-    //https://api.openweathermap.org/data/2.5/weather?q=bogota,colombia&appid=7fd9ba295d2228d7c60ae6dedc1375f9
+    const urlDaily =`https://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=${cnt}&appid=${apiId}`
+    const cnt = 7
 
     fetch(url)
-        .then(data=>{
-            return data.json()
-        })
+        .then(response => response.json())
         .then(dataJSON =>{
             if(dataJSON.cod === '404'){
                 showError('Ciudad no encontrada');
             }else{
                 clearHTML();
                 showWeather(dataJSON);
+                console.log(dataJSON)
             }
         })
         .catch(error =>{
             console.log(error)
         })
+    
+    fetch(urlDaily)
+        .then(data=>{
+            return data.json()
+        })
+        .then(dataDailyJSON =>{
+
+            console.log(dataDailyJSON)
+        })
+        
 }
+
+
 
 const showWeather =(data)=>{
     const {name, main:{temp,temp_min,temp_max}, weather:[arr]} = data;
