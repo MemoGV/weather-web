@@ -8,31 +8,30 @@
     </head>
     <body>
         <main id="wrap-main">
-            <section class="weather-content">
-                <h1>Buscador del Clima</h1>
-                <div class="result">
-                    <p>
-                        Agregue ciudad y pais
-                    </p>
-                </div>
-                <form action="" method="POST" class="weather">
-                    <input type="text" name="city" id="city" placeholder="Ciudad" autocomplete="off">
-                    <select name="" id="country">
-                        <option disabled selected value="">Select the Country</option>
-                        <option value="AR">Argentina</option>
-                        <option value="CO">Colombia</option>
-                        <option value="CR">Costa Rica</option>
-                        <option value="ES">Espana</option>
-                        <option value="US">Estados Unidos</option>
-                        <option value="MX">México</option>
-                        <option value="PE">Perú</option>
-                    </select>
-                    <input type="submit" name="" id="" value="Get Weather">
-                </form>
-                <div class="prueba">
-
-                </div>
-            </section>
+                    <section class="current-weather"></section>
+                    <section class="weather">
+                        <form action="" method="POST">
+                            <input type="text" name="city" id="city" placeholder="Ciudad" autocomplete="off">
+                            <select name="" id="country">
+                                <option disabled selected value="">Select the Country</option>
+                                <option value="AR">Argentina</option>
+                                <option value="CO">Colombia</option>
+                                <option value="CR">Costa Rica</option>
+                                <option value="ES">Espana</option>
+                                <option value="US">Estados Unidos</option>
+                                <option value="MX">México</option>
+                                <option value="PE">Perú</option>
+                            </select>
+                            <input type="submit" name="" id="" value="Get Weather">
+                        </form>
+                    </section>
+                    <section id="weather-time-wrap">
+                        <section class="weather-time"></section>
+                    </section>
+                    <section class="box-style" id="section-feels-like"></section>
+                    <section class="box-style" id="section-humidity"></section>
+                    <section class="box-style" id="section-wind-speed"></section>
+                    <section class="box-style" id="section-sunset"></section>     
         </main>
     </body>
 

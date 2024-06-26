@@ -3,10 +3,118 @@
     margin: 0px;
     padding: 0px;
     border: 0px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+h1,h2,h3,h4{
+    text-wrap: balance;
+}
+p{
+    text-wrap: pretty;
+}
+body{
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom, #00A9FF, #89CFF3)
 }
 #wrap-main{
-    border: 1px solid red;
     width: 90vw;
     height: 90vh;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: .2fr 1fr 1fr 1fr;
+    border-radius: 2rem;
+    overflow: hidden;
+    gap: 1rem;
+}
+.weather{
+    grid-column: 3/5;
+    grid-row: 1/2;
+}
+.weather-time{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    align-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #89CFF3;
+    border-radius: 2rem;
+    background-color:#6b9cb480;;
+}
+#weather-time-wrap{
+    grid-column: 1/5;
+    grid-row: 4/5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+}
+.current-weather{
+    grid-column: 1/3;
+    grid-row: 1/4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.section-data-weather{
+    border: 1px solid #89CFF3;
+    width: 90%;
+    height: 90%;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #6b9cb480;
 
+    h2{
+        font-size: 7rem;
+    }
+    h3{
+        font-size: 2rem;
+    }
+    p{  
+        display: flex;
+        flex-direction:column;
+        font-size: 1.5rem;
+    }
+}
+.feels-like{
+    width: 100%;
+    height: 100%;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color:#6b9cb480;;
+
+    h2{
+        font-size: 2rem;
+    }
+    h3{
+        font-size: 4rem;
+    }
+}
+.box-style{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.box-daily-weather{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
