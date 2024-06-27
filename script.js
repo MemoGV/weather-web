@@ -15,38 +15,70 @@ form.addEventListener('submit', (e)=>{
         showError('Ambos campos son obligatorios');
         return;
     }
-
-    callAPI(nameCity.value, nameCountry.value);
+    callAPIWeather(nameCity.value, nameCountry.value);
 })
 
-const callAPI=(city, country)=>{
-    const apiId = '';
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${apiId}`;
-    fetch(url)
-        .then(response => response.json())
-        .then(dataJSON =>{
-            if(dataJSON.cod === '404'){
-                showError('Ciudad no encontrada');
-            }else{
-                clearHTML();
-                showWeather(dataJSON);
-                console.log(dataJSON);
-                const lat = dataJSON.coord.lat;
-                const lon = dataJSON.coord.lon;
-                const urlDaily =`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiId}`;
-                return fetch(urlDaily);
-            }
+const ipAPICall = async()=>{
+    try {
+        const request = await fetch(`https://ipinfo.io/json?token=${keyIp}`);
+        if(!request.ok) {
+            throw new Error(`Error! status: ${request.status}`)};
+    const jsonResponse = await request.json();
+    const {city, country} = jsonResponse;
+    callAPIWeather(city, country);
+    } catch(error){
+    console.error('Error request IP information:', error);
+    }
+};
+
+ipAPICall();
+
+const messageIA = async(data)=>{
+    const {name, main:{temp, feels_like, humidity}, sunset, weather:[arr]} = data;
+    const prompt = `El clima en ${name} es ${arr.description}, temperatura ${temp}°C, humedad ${humidity}%, sensacion ${feels_like}, el atardecer sera a ${sunset},
+    puedes darme un resumen y consejos para prepararme para este clima`
+    const response = await fetch('https://api.openai.com/v1/completions', {
+        method:'POST',
+        headers: {
+            'content-type':'application/json',
+            'authorization': `Bearer ${keyIA}`
+        },
+        body: JSON.stringify({
+            prompt: prompt,
+            max_tokens: 50,
+            model:'gpt-3.5-turbo'
         })
-        .then(response => response.json())
-        .then(dataDailyJSON =>{
-            if(dataDailyJSON){
-                showWeatherTime(dataDailyJSON);
-                console.log(dataDailyJSON);
-            }
-        })
-        .catch(error =>{
-            console.log(error);
-        })
+    });
+    const message = await response.json();
+    console.log(message);
+}
+
+const callAPIWeather = async(city, country)=>{
+    try{
+        const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${keyWeather}`);
+        if(!request.ok){
+            throw new Error(`Error! Status: ${request.status}`)
+        };
+        const JSONResponse = await request.json();
+        clearHTML(currentWeather);
+        clearHTML(weatherTime);
+        clearHTML(sectionFeelsLike);
+        clearHTML(sectionHumidity);
+        clearHTML(sectionWindSpeed);
+        clearHTML(sectionSunset);
+        showWeather(JSONResponse);
+        const lat = JSONResponse.coord.lat;
+        const lon = JSONResponse.coord.lon;
+        const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${keyWeather}`);
+        if(!dailyRequest.ok){
+            throw new Error(`Error Second Request! Status: ${request.status} `);
+        };
+        const dailyJSONResponse = await dailyRequest.json();
+        showWeatherTime(dailyJSONResponse);
+        console.log(dailyJSONResponse);
+    } catch(error){
+        console.error('Error request information', error);
+    }
 }
 
 const showWeather=(data)=>{
@@ -55,7 +87,8 @@ const showWeather=(data)=>{
     const minDegrees = kelvinToCentigradetemp(temp_min);
     const maxDegrees = kelvinToCentigradetemp(temp_max);
     const content = document.createElement('article');
-    content.classList.add('section-data-weather')
+    content.classList.add('section-data-weather');
+    clearHTML(content);
     content.innerHTML = `
             <h3>${name}</h3>
             <img src='https://openweathermap.org/img/wn/${arr.icon}@2x.png' alt'Weather Icon'>
@@ -70,13 +103,12 @@ const showWeather=(data)=>{
 }
 const showWeatherTime =(data)=>{
     for(let i=0; i<8; i++){
-        const arr = data.list[i];
-        const {temp} = arr.main;
-        const [{main, description, icon}] = arr.weather;
+        const {dt, main:{temp}, weather:[{description, icon}]  } = data.list[i];
         const degrees = kelvinToCentigradetemp(temp)
         const content = document.createElement('article');
         content.classList.add('box-daily-weather')
         content.innerHTML = `
+            <p>${unixToTime(dt).getHours()} hrs</p>
             <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
             <p>${description}</p>
             <h2>${degrees}°</h2>`
@@ -93,15 +125,15 @@ const showError=(message)=>{
         alert.remove();
     }, 1000);
 }
-const clearHTML =()=>{
-    currentWeather.innerHTML = ''
+const clearHTML =(section)=>{
+    section.innerHTML = ''
 }
 const kelvinToCentigradetemp=(temp)=>parseInt(temp - 273.15);
 
 const printFeelsLike =(data, section, className)=>{
     const degrees = kelvinToCentigradetemp(data)
     const element = document.createElement('article');
-    element.classList.add(className)
+    element.classList.add(className);
     element.innerHTML = `
         <h2>Sensacion</h2>
         <h3>${degrees}°</h3>
@@ -124,20 +156,23 @@ const printSpeedWind =(data, section, className)=>{
     element.classList.add(className);
     element.innerHTML = `
         <h2>Viento</h2>
-        <h3>${KmS}Km/h</h3>
+        <h3>${Math.ceil(KmS)} Km/h</h3>
     `
     section.appendChild(element);
 }
 
 const printSunset=(data, section, className)=>{
-    let time = data*1000;
-    let date = new Date(time);
-    let utcDate = date.toUTCString();
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
         <h2>Atarceder</h2>
-        <h3>${utcDate}</h3>
+        <h3>${unixToTime(data).getHours()} : ${unixToTime(data).getMinutes().toString().padStart(2, '0')} Hrs</h3>
     `
     section.appendChild(element);
+}   
+
+const unixToTime =(unix)=>{
+    let time = unix*1000;
+    let date = new Date(time);
+    return date;
 }   
