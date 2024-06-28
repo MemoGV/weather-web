@@ -1,5 +1,5 @@
 const currentWeather = document.querySelector('.current-weather');
-const form = document.querySelector('.weather');
+const form = document.querySelector('.inputSearch');
 const nameCity = document.querySelector('#city');
 const nameCountry = document.querySelector('#country');
 const weatherTime = document.querySelector('.weather-time')
@@ -8,14 +8,13 @@ const sectionWindSpeed = document.querySelector('#section-wind-speed');
 const sectionSunset = document.querySelector('#section-sunset');
 const sectionHumidity = document.querySelector('#section-humidity');
 
-
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
-    if(nameCity.value === '' || nameCountry.value === ''){
+    if(nameCity.value === '' )/*|| nameCountry.value === '')*/{
         showError('Ambos campos son obligatorios');
         return;
     }
-    callAPIWeather(nameCity.value, nameCountry.value);
+    callAPIWeather(nameCity.value);
 })
 
 const ipAPICall = async()=>{
@@ -53,9 +52,9 @@ const messageIA = async(data)=>{
     console.log(message);
 }
 
-const callAPIWeather = async(city, country)=>{
+const callAPIWeather = async(city)=>{
     try{
-        const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${keyWeather}`);
+        const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyWeather}&lang=es`);
         if(!request.ok){
             throw new Error(`Error! Status: ${request.status}`)
         };
@@ -67,9 +66,10 @@ const callAPIWeather = async(city, country)=>{
         clearHTML(sectionWindSpeed);
         clearHTML(sectionSunset);
         showWeather(JSONResponse);
+        console.log(JSONResponse);
         const lat = JSONResponse.coord.lat;
         const lon = JSONResponse.coord.lon;
-        const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${keyWeather}`);
+        const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${keyWeather}&lang=es`);
         if(!dailyRequest.ok){
             throw new Error(`Error Second Request! Status: ${request.status} `);
         };
@@ -78,11 +78,12 @@ const callAPIWeather = async(city, country)=>{
         console.log(dailyJSONResponse);
     } catch(error){
         console.error('Error request information', error);
+        showError('Ciudad no existe')
     }
 }
 
 const showWeather=(data)=>{
-    const {name, main:{temp,temp_min,temp_max, feels_like, humidity}, weather:[arr], visibility, wind:{speed}, sys:{sunrise, sunset}} = data;
+    const {name, main:{temp,temp_min,temp_max, feels_like, humidity}, weather:[arr], visibility, wind:{speed}, sys:{sunrise, sunset, country}} = data;
     const degrees = kelvinToCentigradetemp(temp);
     const minDegrees = kelvinToCentigradetemp(temp_min);
     const maxDegrees = kelvinToCentigradetemp(temp_max);
@@ -91,7 +92,7 @@ const showWeather=(data)=>{
     clearHTML(content);
     content.innerHTML = `
             <h3>${name}</h3>
-            <img src='https://openweathermap.org/img/wn/${arr.icon}@2x.png' alt'Weather Icon'>
+            <h4>${country}</h4>
             <h2>${degrees}°</h2>
             <p>${arr.description}</p>
             <p>Maxima: ${maxDegrees}°  Minima: ${minDegrees}°</p>`
@@ -99,10 +100,10 @@ const showWeather=(data)=>{
     printFeelsLike(feels_like, sectionFeelsLike, 'feels-like');
     printHumidity(humidity, sectionHumidity, 'feels-like');
     printSpeedWind(speed, sectionWindSpeed, 'feels-like');
-    printSunset(sunset, sectionSunset, 'feels-like');
+    printSunset(sunrise, sunset, sectionSunset, 'feels-like');
 }
 const showWeatherTime =(data)=>{
-    for(let i=0; i<8; i++){
+    for(let i=0; i<9; i++){
         const {dt, main:{temp}, weather:[{description, icon}]  } = data.list[i];
         const degrees = kelvinToCentigradetemp(temp)
         const content = document.createElement('article');
@@ -135,7 +136,8 @@ const printFeelsLike =(data, section, className)=>{
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
-        <h2>Sensacion</h2>
+        <h2>SENSACION</h2>
+        <img src='./thermometer.webp' width=32 height32>
         <h3>${degrees}°</h3>
     `
     section.appendChild(element);
@@ -144,29 +146,32 @@ const printHumidity =(data, section, className)=>{
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
-        <h2>Humedad</h2>
+        <h2>HUMEDAD</h2>
+        <img src='./humidity.webp' width=32 height=32>
         <h3>${data}%<h3/>
     `
     section.appendChild(element);
 }
-
 const printSpeedWind =(data, section, className)=>{
     const element = document.createElement('article');
     const KmS = data*3.6
     element.classList.add(className);
     element.innerHTML = `
         <h2>Viento</h2>
+        <img src='./wind.svg' width=32 height=32>
         <h3>${Math.ceil(KmS)} Km/h</h3>
     `
     section.appendChild(element);
 }
 
-const printSunset=(data, section, className)=>{
+const printSunset=(sunrise, sunset, section, className)=>{
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
-        <h2>Atarceder</h2>
-        <h3>${unixToTime(data).getHours()} : ${unixToTime(data).getMinutes().toString().padStart(2, '0')} Hrs</h3>
+        <h2>ATARDECER</h2>
+        <img src='./sunset.svg' weight=32 height=32>
+        <h3>${unixToTime(sunset).getHours()}:${unixToTime(sunset).getMinutes().toString().padStart(2, '0')} Hrs</h3>
+        <h4>Amancer: ${unixToTime(sunrise).getHours()}:${unixToTime(sunrise).getMinutes().toString().padStart(2, '0')} Hrs</h4>
     `
     section.appendChild(element);
 }   
