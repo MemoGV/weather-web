@@ -1,3 +1,4 @@
+const body = document.querySelector('body');
 const currentWeather = document.querySelector('.current-weather');
 const form = document.querySelector('.inputSearch');
 const nameCity = document.querySelector('#city');
@@ -7,6 +8,9 @@ const sectionFeelsLike = document.querySelector('#section-feels-like');
 const sectionWindSpeed = document.querySelector('#section-wind-speed');
 const sectionSunset = document.querySelector('#section-sunset');
 const sectionHumidity = document.querySelector('#section-humidity');
+const sectionVisibility = document.querySelector('#section-visibility');
+const sectionDailyWeather = document.querySelector('#section-daily-weather');
+
 
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
@@ -65,6 +69,7 @@ const callAPIWeather = async(city)=>{
         clearHTML(sectionHumidity);
         clearHTML(sectionWindSpeed);
         clearHTML(sectionSunset);
+        clearHTML(sectionVisibility);
         showWeather(JSONResponse);
         console.log(JSONResponse);
         const lat = JSONResponse.coord.lat;
@@ -75,6 +80,7 @@ const callAPIWeather = async(city)=>{
         };
         const dailyJSONResponse = await dailyRequest.json();
         showWeatherTime(dailyJSONResponse);
+        pro(dailyJSONResponse);
         console.log(dailyJSONResponse);
     } catch(error){
         console.error('Error request information', error);
@@ -99,12 +105,15 @@ const showWeather=(data)=>{
     currentWeather.appendChild(content);
     printFeelsLike(feels_like, sectionFeelsLike, 'feels-like');
     printHumidity(humidity, sectionHumidity, 'feels-like');
-    printSpeedWind(speed, sectionWindSpeed, 'feels-like');
     printSunset(sunrise, sunset, sectionSunset, 'feels-like');
+    printVisibility(visibility, sectionVisibility, 'feels-like');
+    
 }
 const showWeatherTime =(data)=>{
+    const {visibility, wind:{speed, gust} } = data.list[0];
+    printSpeedWind(speed, gust, sectionWindSpeed, 'feels-like');
     for(let i=0; i<9; i++){
-        const {dt, main:{temp}, weather:[{description, icon}]  } = data.list[i];
+        const {dt, main:{temp}, weather:[{description, icon}]} = data.list[i];
         const degrees = kelvinToCentigradetemp(temp)
         const content = document.createElement('article');
         content.classList.add('box-daily-weather')
@@ -113,9 +122,113 @@ const showWeatherTime =(data)=>{
             <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
             <p>${description}</p>
             <h2>${degrees}°</h2>`
-        weatherTime.appendChild(content);
-    }
+        weatherTime.appendChild(content);}
 }
+
+const pro =(data)=>{
+    const {list} = data;
+    list.forEach((va)=>{
+        const {dt, main:{temp_min,  temp_max}, weather:[{icon}]} = va;
+        let time = unixToTime(dt).getHours()
+        let day = unixToTime(dt).getDay();
+        if(time === 12){
+            printDailyWeather(icon, temp_min, temp_max, 'daily-weather');
+        }
+    })
+}
+
+const printDailyWeather =(icon, tempMin, tempMax, className)=>{
+    const degreesMax = kelvinToCentigradetemp(tempMax);
+    const degreesMin = kelvinToCentigradetemp(tempMin);
+    const element = document.createElement('article');
+    element.classList.add(className);
+    element.innerHTML = `
+        <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
+        <h3>${degreesMin}°</h3>
+        <h3>${degreesMax}°</h3>
+
+    `
+    sectionDailyWeather.appendChild(element);
+
+}
+const printFeelsLike =(data, section, className)=>{
+    const degrees = kelvinToCentigradetemp(data)
+    const element = document.createElement('article');
+    const div = document.createElement('div');
+    element.classList.add(className);
+    div.classList.add('title-div-style');
+    div.innerHTML= `<h2>SENSACION</h2>
+        <img src='./thermometer.webp' width=32 height32>`
+    element.innerHTML = `
+        <h3>${degrees}°</h3>
+    `
+    section.appendChild(div);
+    section.appendChild(element);
+}
+const printHumidity =(data, section, className)=>{
+    const element = document.createElement('article');
+    const div = document.createElement('div');
+    div.classList.add('title-div-style');
+    element.classList.add(className);
+    div.innerHTML=`<h2>HUMEDAD</h2>
+        <img src='./humidity.webp' width=32 height=32>`
+    element.innerHTML = `
+        <h3>${data}%<h3/>
+    `
+    section.appendChild(div);
+    section.appendChild(element);
+}
+const printSpeedWind =(data, data1, section, className)=>{
+    const element = document.createElement('article');
+    const div = document.createElement('div');
+    div.classList.add('title-div-style');
+    const VKms = data*3.6
+    const RKms = data1*3.6
+    element.classList.add(className);
+    div.innerHTML=`
+        <h2>VIENTO</h2>
+        <img src='./wind.svg' width=32 height=32>`
+    element.innerHTML = `
+        <h3>${Math.ceil(VKms)} Km/h</h3>
+        <p>Viento</p>
+        <h3>${Math.ceil(RKms)} Km/h</h3>
+        <p>Rafagas</p>
+    `
+    section.appendChild(div);
+    section.appendChild(element);
+}
+
+const printSunset=(sunrise, sunset, section, className)=>{
+    const element = document.createElement('article');
+    const div = document.createElement('div');
+    div.classList.add('title-div-style');
+    element.classList.add(className);
+    div.innerHTML=`<h2>ATARDECER</h2>
+        <img src='./sunset.svg' weight=32 height=32>`
+    element.innerHTML = `
+        <h3>${unixToTime(sunset).getHours()}:${unixToTime(sunset).getMinutes().toString().padStart(2, '0')} Hrs</h3>
+        <h4>Amancer: ${unixToTime(sunrise).getHours()}:${unixToTime(sunrise).getMinutes().toString().padStart(2, '0')} Hrs</h4>
+    `
+    section.appendChild(div);
+    section.appendChild(element);
+}   
+
+const printVisibility=(data, section, className)=>{
+    const element = document.createElement('article');
+    const div = document.createElement('div');
+    div.classList.add('title-div-style');
+    element.classList.add(className);
+    div.innerHTML=`
+        <h2>VISIBILIDAD</h2>
+        <img src='./eye.svg' height=32 width=32>
+    `
+    element.innerHTML=`
+    <h3>${data}</h3>
+    `
+    section.appendChild(div);
+    section.appendChild(element);
+}
+
 const showError=(message)=>{
     console.log(message);
     const alert = document.createElement('p');
@@ -126,58 +239,14 @@ const showError=(message)=>{
         alert.remove();
     }, 1000);
 }
-const clearHTML =(section)=>{
-    section.innerHTML = ''
-}
-const kelvinToCentigradetemp=(temp)=>parseInt(temp - 273.15);
-
-const printFeelsLike =(data, section, className)=>{
-    const degrees = kelvinToCentigradetemp(data)
-    const element = document.createElement('article');
-    element.classList.add(className);
-    element.innerHTML = `
-        <h2>SENSACION</h2>
-        <img src='./thermometer.webp' width=32 height32>
-        <h3>${degrees}°</h3>
-    `
-    section.appendChild(element);
-}
-const printHumidity =(data, section, className)=>{
-    const element = document.createElement('article');
-    element.classList.add(className);
-    element.innerHTML = `
-        <h2>HUMEDAD</h2>
-        <img src='./humidity.webp' width=32 height=32>
-        <h3>${data}%<h3/>
-    `
-    section.appendChild(element);
-}
-const printSpeedWind =(data, section, className)=>{
-    const element = document.createElement('article');
-    const KmS = data*3.6
-    element.classList.add(className);
-    element.innerHTML = `
-        <h2>Viento</h2>
-        <img src='./wind.svg' width=32 height=32>
-        <h3>${Math.ceil(KmS)} Km/h</h3>
-    `
-    section.appendChild(element);
-}
-
-const printSunset=(sunrise, sunset, section, className)=>{
-    const element = document.createElement('article');
-    element.classList.add(className);
-    element.innerHTML = `
-        <h2>ATARDECER</h2>
-        <img src='./sunset.svg' weight=32 height=32>
-        <h3>${unixToTime(sunset).getHours()}:${unixToTime(sunset).getMinutes().toString().padStart(2, '0')} Hrs</h3>
-        <h4>Amancer: ${unixToTime(sunrise).getHours()}:${unixToTime(sunrise).getMinutes().toString().padStart(2, '0')} Hrs</h4>
-    `
-    section.appendChild(element);
-}   
 
 const unixToTime =(unix)=>{
     let time = unix*1000;
     let date = new Date(time);
     return date;
 }   
+
+const clearHTML =(section)=>{
+    section.innerHTML = ''
+}
+const kelvinToCentigradetemp=(temp)=>parseInt(temp - 273.15);
