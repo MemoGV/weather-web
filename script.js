@@ -10,6 +10,8 @@ const sectionSunset = document.querySelector('#section-sunset');
 const sectionHumidity = document.querySelector('#section-humidity');
 const sectionVisibility = document.querySelector('#section-visibility');
 const sectionDailyWeather = document.querySelector('#section-daily-weather');
+const sectionTime = document.querySelector('#weather-time-wrap');
+
 
 
 form.addEventListener('submit', (e)=>{
@@ -64,12 +66,13 @@ const callAPIWeather = async(city)=>{
         };
         const JSONResponse = await request.json();
         clearHTML(currentWeather);
-        clearHTML(weatherTime);
+        clearHTML(sectionTime);
         clearHTML(sectionFeelsLike);
         clearHTML(sectionHumidity);
         clearHTML(sectionWindSpeed);
         clearHTML(sectionSunset);
         clearHTML(sectionVisibility);
+        clearHTML(sectionDailyWeather);
         showWeather(JSONResponse);
         console.log(JSONResponse);
         const lat = JSONResponse.coord.lat;
@@ -80,7 +83,7 @@ const callAPIWeather = async(city)=>{
         };
         const dailyJSONResponse = await dailyRequest.json();
         showWeatherTime(dailyJSONResponse);
-        pro(dailyJSONResponse);
+        getDailyWeather(dailyJSONResponse);
         console.log(dailyJSONResponse);
     } catch(error){
         console.error('Error request information', error);
@@ -90,66 +93,64 @@ const callAPIWeather = async(city)=>{
 
 const showWeather=(data)=>{
     const {name, main:{temp,temp_min,temp_max, feels_like, humidity}, weather:[arr], visibility, wind:{speed}, sys:{sunrise, sunset, country}} = data;
-    const degrees = kelvinToCentigradetemp(temp);
-    const minDegrees = kelvinToCentigradetemp(temp_min);
-    const maxDegrees = kelvinToCentigradetemp(temp_max);
-    const content = document.createElement('article');
-    content.classList.add('section-data-weather');
-    clearHTML(content);
-    content.innerHTML = `
-            <h3>${name}</h3>
-            <h4>${country}</h4>
-            <h2>${degrees}°</h2>
-            <p>${arr.description}</p>
-            <p>Maxima: ${maxDegrees}°  Minima: ${minDegrees}°</p>`
-    currentWeather.appendChild(content);
+    printCurrentWeather(name, country, temp, arr.description, temp_min, temp_max);
     printFeelsLike(feels_like, sectionFeelsLike, 'feels-like');
     printHumidity(humidity, sectionHumidity, 'feels-like');
     printSunset(sunrise, sunset, sectionSunset, 'feels-like');
     printVisibility(visibility, sectionVisibility, 'feels-like');
     
 }
+
 const showWeatherTime =(data)=>{
-    const {visibility, wind:{speed, gust} } = data.list[0];
+    const {wind:{speed, gust} } = data.list[0];
     printSpeedWind(speed, gust, sectionWindSpeed, 'feels-like');
     for(let i=0; i<9; i++){
         const {dt, main:{temp}, weather:[{description, icon}]} = data.list[i];
         const degrees = kelvinToCentigradetemp(temp)
         const content = document.createElement('article');
-        content.classList.add('box-daily-weather')
+        content.classList.add('box-time-weather')
         content.innerHTML = `
             <p>${unixToTime(dt).getHours()} hrs</p>
             <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
             <p>${description}</p>
             <h2>${degrees}°</h2>`
-        weatherTime.appendChild(content);}
+        sectionTime.appendChild(content);}
 }
 
-const pro =(data)=>{
+const getDailyWeather =(data)=>{
     const {list} = data;
+    const element = document.createElement('div');
+    element.classList.add('title-div-style')
+    element.innerHTML= `
+        <h3>PRONOSTICO 5 DIAS</h3>
+        <img src='./calendar.svg' height=20 width=20>`
+    sectionDailyWeather.appendChild(element);
     list.forEach((va)=>{
         const {dt, main:{temp_min,  temp_max}, weather:[{icon}]} = va;
         let time = unixToTime(dt).getHours()
         let day = unixToTime(dt).getDay();
         if(time === 12){
-            printDailyWeather(icon, temp_min, temp_max, 'daily-weather');
+            printDailyWeather(getDayName(day), icon, temp_min, temp_max, 'daily-weather');
         }
     })
 }
-
-const printDailyWeather =(icon, tempMin, tempMax, className)=>{
+const getDayName =(numDay)=>{
+    const dayNames = ['Dom', 'Lun', 'Mar', 'Mier', 'Jue', 'Vie', 'Sab'];
+    return dayNames[numDay];
+}
+const printDailyWeather =(day,icon, tempMin, tempMax, className)=>{
     const degreesMax = kelvinToCentigradetemp(tempMax);
     const degreesMin = kelvinToCentigradetemp(tempMin);
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
+        <h4>${day}</h4>
         <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
         <h3>${degreesMin}°</h3>
         <h3>${degreesMax}°</h3>
 
     `
     sectionDailyWeather.appendChild(element);
-
 }
 const printFeelsLike =(data, section, className)=>{
     const degrees = kelvinToCentigradetemp(data)
@@ -216,6 +217,7 @@ const printSunset=(sunrise, sunset, section, className)=>{
 const printVisibility=(data, section, className)=>{
     const element = document.createElement('article');
     const div = document.createElement('div');
+    const km = Math.ceil(data/1000);
     div.classList.add('title-div-style');
     element.classList.add(className);
     div.innerHTML=`
@@ -223,10 +225,24 @@ const printVisibility=(data, section, className)=>{
         <img src='./eye.svg' height=32 width=32>
     `
     element.innerHTML=`
-    <h3>${data}</h3>
+    <h3>${km} Km</h3>
     `
     section.appendChild(div);
     section.appendChild(element);
+}
+const printCurrentWeather =(name, country, deg, description, minDeg, maxDeg)=>{
+    const degrees = kelvinToCentigradetemp(deg);
+    const minDegrees = kelvinToCentigradetemp(minDeg);
+    const maxDegrees = kelvinToCentigradetemp(maxDeg);
+    const element = document.createElement('article');
+    element.classList.add('section-data-weather');
+    element.innerHTML=`
+            <h3>${name}</h3>
+            <h4>${country}</h4>
+            <h2>${degrees}°</h2>
+            <p>${description}</p>
+            <p>Maxima: ${maxDegrees}°  Minima: ${minDegrees}°</p>`
+    currentWeather.appendChild(element);
 }
 
 const showError=(message)=>{

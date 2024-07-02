@@ -12,7 +12,7 @@
     border: 0px;
     box-sizing: border-box;
     min-width: 0;
-    font-family: 'Hind Siliguri';
+    font-family: 'Hind Siliguri', sans-serif, Georgia, 'Times New Roman', Times, serif;
     color: #F3FAFF;
 }
 h1,h2,h3,h4{
@@ -27,6 +27,7 @@ body{
     justify-content: center;
     align-items: center;
     background:#393E46;
+    transition: all 300ms ;
 }
 #wrap-main{
     width: 90vw;
@@ -37,47 +38,204 @@ body{
     border-radius: 2rem;
     overflow: hidden;
     gap: 1rem;
+    position: absolute;
 }
 #section-feels-like{
     grid-column: 4/5;
     grid-row: 2/3;
+    opacity: 0;
+    position: relative;
+    z-index: 8;
+    animation: mover 600ms ease-out 1600ms forwards;
+
+    .feels-like{
+        animation: opacity 400ms ease-in 2000ms forwards;
+    }
 }
 #section-humidity{
     grid-column: 5/6;
     grid-row: 2/3;
+    opacity: 0;
+    position: relative;
+    z-index: 7;
+    animation: mover 600ms ease-out 2250ms forwards;
+
+    .feels-like{
+        animation: opacity 400ms ease-in 2600ms forwards;
+    }
 }
 #section-sunset{
     grid-column: 6/7;
     grid-row: 2/4;
+    opacity: 0;
+    position: relative;
+    z-index: 6;
+    animation: mover2 1s ease-out 2700ms forwards;
+
+    .feels-like{
+        animation: opacity 400ms ease-in 3300ms forwards;
+    }
 }
 #section-wind-speed{
     grid-column: 4/6;
     grid-row: 3/5;
+    opacity: 0;
+    position: relative;
+    z-index: 5;
+    animation: moverdown 600ms ease-out 2700ms forwards;
+
+    .feels-like{
+        animation: opacity 400ms ease-in 3200ms forwards;
+    }
 }
 #section-visibility{
     grid-column: 6/7;
     grid-row: 4/5;
+    opacity: 0;
+    position: relative;
+    z-index: 4;
+    animation: moverdown1 600ms ease-out 3500ms forwards;
+
+    .feels-like{
+        animation: opacity 400ms ease-in 3700ms forwards;
+    }
 }
 #section-daily-weather{
+    opacity: 0;
     grid-column: 3/4;
-    grid-row: 1/4;
+    grid-row: 1/5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background: #45566D;
+    border-radius: 2rem;
+    padding: 1rem;
+    position: relative;
+    z-index: 9;
+    animation: mover 700ms ease-in 900ms forwards;
+
+    .daily-weather{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        opacity: 0;
+    }
+    .daily-weather:nth-child(2){
+        animation: opacity 400ms ease-in 1200ms forwards;
+    }
+    .daily-weather:nth-child(3){
+        animation: opacity 400ms ease-in 1300ms forwards;
+    }
+    .daily-weather:nth-child(4){
+        animation: opacity 400ms ease-in 1400ms forwards;
+    }
+    .daily-weather:nth-child(5){
+        animation: opacity 400ms ease-in 1700ms forwards;
+    }
+    .daily-weather:nth-child(6){
+        animation: opacity 400ms ease-in 1800ms forwards;
+    }
+
 }
 #weather-time-wrap{
+    background-color: #45566D;
+    padding: 1rem;
+    border-radius: 2rem;
     grid-column: 1/7;
     grid-row: 5/6;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     flex-direction: row;
-    width: 100%;
+    max-height: 23vh;
+    opacity: 0;
+    position: relative;
+    z-index: 4;
+    animation: moverright 2000ms ease-out 1600ms forwards; 
+
+    .box-time-weather{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-wrap: wrap;
+        opacity: 0;
+    }
+
+    .box-time-weather:nth-child(1){
+        animation: opacity 400ms ease-in 2400ms forwards;
+    }
+    .box-time-weather:nth-child(2){
+        animation: opacity 400ms ease-in 2500ms forwards;
+    }
+    .box-time-weather:nth-child(3){
+        animation: opacity 400ms ease-in 2600ms forwards;
+    }
+    .box-time-weather:nth-child(4){
+        animation: opacity 400ms ease-in 2700ms forwards;
+    }
+    .box-time-weather:nth-child(5){
+        animation: opacity 400ms ease-in 2800ms forwards;
+    }
+    .box-time-weather:nth-child(6){
+        animation: opacity 400ms ease-in 2900ms forwards;
+    }
+    .box-time-weather:nth-child(7){
+        animation: opacity 400ms ease-in 3000ms forwards;
+    }
+    .box-time-weather:nth-child(8){
+        animation: opacity 400ms ease-in 3100ms forwards;
+    }
+    .box-time-weather:nth-child(9){
+        animation: opacity 400ms ease-in 3200ms forwards;
+    }
+    
 }
 .current-weather{
+    position: relative;
+    z-index: 10;
     grid-column: 1/3;
     grid-row: 1/5;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    background-color:#45566D;
+    border-radius: 2rem;
+    animation: prueba 1s ease-in ;
+
+    .section-data-weather{
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: center;
+        justify-content: center; 
+        animation: opacity 700ms ease-in forwards;
+        
+        h2{
+            font-size: 7rem;
+        }
+        h3{
+            font-size: 2rem;
+        }
+        p{  
+            display: flex;
+            flex-direction:column;
+            font-size: 1.5rem;
+        }
+        img{
+            width: 10rem;
+            height: 10rem;
+        }
+    }
 }
 .inputSearch{
     grid-column: 4/7;
@@ -129,48 +287,7 @@ body{
     }  
 }
 
-.weather-time{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-    align-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-    height: 100%;
-    border-radius: 2rem;
-    background-color: #45566D;
-    padding: 1rem;
-}
-
-.section-data-weather{
-    width: 100%;
-    height: 100%;
-    border-radius: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    background-color:#45566D;
-
-    h2{
-        font-size: 7rem;
-    }
-    h3{
-        font-size: 2rem;
-    }
-    p{  
-        display: flex;
-        flex-direction:column;
-        font-size: 1.5rem;
-    }
-
-    img{
-        width: 10rem;
-        height: 10rem;
-    }
-}
+/* Estilos Generales */
 .feels-like{
     width: 100%;
     height: 100%;
@@ -178,11 +295,15 @@ body{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    opacity: 0;
     h2{
         font-size: 2rem;
     }
     h3{
         font-size: 4rem;
+    }
+    P{
+        font-size: 1.5rem; 
     }
 }
 .box-style{
@@ -190,9 +311,10 @@ body{
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background: #0097FA;
+    background: #45566D;
     border-radius: 2rem;
     padding: 1rem;
+    
 }
 .title-div-style{
     display: flex;
@@ -205,19 +327,93 @@ body{
     img{
         width: 20px;
         height: 20px;
+        filter: invert(90%);
     }
     h2{
         font-size: 1.3rem;
     }
 }
-.box-daily-weather{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+
+
+@keyframes prueba{
+    0%{
+        opacity: 0;
+        transform: translateX(30vw) translateY(15vh); 
+    }
+    50%{
+        opacity: 1;
+        transform: translateX(30vw) translateY(15vh);  
+    }
+    100%{
+        transform: translateX(0) translateY(0);
+    }
+}
+@keyframes mover{
+    0%{
+        transform: translate(-17vw, 0);
+        
+        
+    }
+    100%{
+        opacity: 1;
+        transform: translate(0, 0);
+    }
 }
 
-.daily-weather{
-    display: flex;
+@keyframes mover2{
+    0%{
+        transform: translate(-17vw, 0);
+        height: 50%;
+        
+    }60%{
+        transform: translate(0, 0);
+        height: 50%;
+    }
+    100%{
+        opacity: 1;
+        height: 100%;
+    }
+}
+@keyframes moverdown{
+    0%{
+        transform: translate(0, -15vh);
+    }50%{
+        opacity: 0;
+    }
+    100%{
+        transform: translate(0,0);
+        opacity: 1;  
+    }
+}
+@keyframes moverdown1{
+    0%{
+        transform: translate(0, -15vh);
+    }
+    30%{
+        opacity: 0;
+    }
+    100%{
+        transform: translate(0,0);
+        opacity: 1;
+    }
+}
+@keyframes moverright{
+    0%{
+        width: 5%;
+        transform: translate(0, -15vh);
+
+    }20%{
+        transform: translate(0,0);
+        width: 5%;
+        opacity: 1;
+    }
+    100%{
+        width: 100%;
+        opacity: 1;
+    }
+}
+@keyframes opacity {
+    100%{
+        opacity: 1;
+    }
 }
