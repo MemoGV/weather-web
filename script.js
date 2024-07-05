@@ -1,7 +1,7 @@
 const body = document.querySelector('body');
 const currentWeather = document.querySelector('.current-weather');
+const alert = document.querySelector('.alert-message')
 const form = document.querySelector('.inputSearch');
-const nameCity = document.querySelector('#city');
 const nameCountry = document.querySelector('#country');
 const weatherTime = document.querySelector('.weather-time')
 const sectionFeelsLike = document.querySelector('#section-feels-like');
@@ -11,16 +11,18 @@ const sectionHumidity = document.querySelector('#section-humidity');
 const sectionVisibility = document.querySelector('#section-visibility');
 const sectionDailyWeather = document.querySelector('#section-daily-weather');
 const sectionTime = document.querySelector('#weather-time-wrap');
-
-
+const boxStyle = document.querySelectorAll('.box-style');
+const inputText = document.querySelector('#input-text');
+const submitBtn = document.querySelector('#submit');
+const gitHubBtn = document.querySelector('#git-hub-btn');
 
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
-    if(nameCity.value === '' )/*|| nameCountry.value === '')*/{
-        showError('Ambos campos son obligatorios');
+    if(inputText.value === '' ){
+        showError('Que ciudad buscas?');
         return;
     }
-    callAPIWeather(nameCity.value);
+    callAPIWeather(inputText.value);
 })
 
 const ipAPICall = async()=>{
@@ -29,34 +31,15 @@ const ipAPICall = async()=>{
         if(!request.ok) {
             throw new Error(`Error! status: ${request.status}`)};
     const jsonResponse = await request.json();
-    const {city, country} = jsonResponse;
-    callAPIWeather(city, country);
+    console.log(jsonResponse);
+    const {city} = jsonResponse;
+    callAPIWeather(city);
     } catch(error){
     console.error('Error request IP information:', error);
     }
 };
 
 ipAPICall();
-
-const messageIA = async(data)=>{
-    const {name, main:{temp, feels_like, humidity}, sunset, weather:[arr]} = data;
-    const prompt = `El clima en ${name} es ${arr.description}, temperatura ${temp}°C, humedad ${humidity}%, sensacion ${feels_like}, el atardecer sera a ${sunset},
-    puedes darme un resumen y consejos para prepararme para este clima`
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method:'POST',
-        headers: {
-            'content-type':'application/json',
-            'authorization': `Bearer ${keyIA}`
-        },
-        body: JSON.stringify({
-            prompt: prompt,
-            max_tokens: 50,
-            model:'gpt-3.5-turbo'
-        })
-    });
-    const message = await response.json();
-    console.log(message);
-}
 
 const callAPIWeather = async(city)=>{
     try{
@@ -126,29 +109,28 @@ const getDailyWeather =(data)=>{
         <img src='./calendar.svg' height=20 width=20>`
     sectionDailyWeather.appendChild(element);
     list.forEach((va)=>{
-        const {dt, main:{temp_min,  temp_max}, weather:[{icon}]} = va;
+        const {dt, main:{temp_max}, weather:[{icon}]} = va;
         let time = unixToTime(dt).getHours()
         let day = unixToTime(dt).getDay();
         if(time === 12){
-            printDailyWeather(getDayName(day), icon, temp_min, temp_max, 'daily-weather');
+            printDailyWeather(getDayName(day), icon, temp_max, 'daily-weather');
         }
     })
 }
+
 const getDayName =(numDay)=>{
     const dayNames = ['Dom', 'Lun', 'Mar', 'Mier', 'Jue', 'Vie', 'Sab'];
     return dayNames[numDay];
 }
-const printDailyWeather =(day,icon, tempMin, tempMax, className)=>{
+const printDailyWeather =(day,icon, tempMax, className)=>{
     const degreesMax = kelvinToCentigradetemp(tempMax);
-    const degreesMin = kelvinToCentigradetemp(tempMin);
     const element = document.createElement('article');
     element.classList.add(className);
     element.innerHTML = `
         <h4>${day}</h4>
         <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
-        <h3>${degreesMin}°</h3>
+        <h5>Max:</h5>
         <h3>${degreesMax}°</h3>
-
     `
     sectionDailyWeather.appendChild(element);
 }
@@ -246,14 +228,13 @@ const printCurrentWeather =(name, country, deg, description, minDeg, maxDeg)=>{
 }
 
 const showError=(message)=>{
-    console.log(message);
     const alert = document.createElement('p');
-    alert.classList.add('alert=message');
+    alert.classList.add('alert-message');
     alert.innerHTML = message;
     form.appendChild(alert);
     setTimeout(()=>{
         alert.remove();
-    }, 1000);
+    }, 600);
 }
 
 const unixToTime =(unix)=>{
@@ -266,3 +247,16 @@ const clearHTML =(section)=>{
     section.innerHTML = ''
 }
 const kelvinToCentigradetemp=(temp)=>parseInt(temp - 273.15);
+
+
+inputText.addEventListener('focus', ()=>{
+    submitBtn.style.backgroundColor = 'rgb(255 255 255 / 95%)';
+});
+
+inputText.addEventListener('blur', ()=>{
+    submitBtn.style.backgroundColor = 'rgb(255, 255, 255, .3)';
+});
+
+gitHubBtn.addEventListener('click', ()=>{
+    window.open('https://github.com/MemoGV', 'blank');
+});
