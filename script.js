@@ -1,5 +1,3 @@
-import {keyWeather, keyIp} from './config.js';
-
 const body = document.querySelector('body');
 const currentWeather = document.querySelector('.current-weather');
 const alert = document.querySelector('.alert-message')
@@ -18,9 +16,6 @@ const inputText = document.querySelector('#input-text');
 const submitBtn = document.querySelector('#submit');
 const gitHubBtn = document.querySelector('#git-hub-btn');
 
-
-
-
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
     if(inputText.value === '' ){
@@ -31,7 +26,7 @@ form.addEventListener('submit', (e)=>{
 })
 const ipAPICall = async()=>{
     try {
-        const request = await fetch(`https://ipinfo.io/json?token=${keyIp}`);
+        const request = await fetch(`https://ipinfo.io/json?token=${process.env.KEY_IP}`);
         if(!request.ok) {
             throw new Error(`Error! status: ${request.status}`)};
     const jsonResponse = await request.json();
@@ -46,7 +41,7 @@ ipAPICall();
 
 const callAPIWeather = async(city)=>{
     try{
-        const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${keyWeather}&lang=es`);
+        const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.KEY_WEATHER}&lang=es`);
         if(!request.ok){
             throw new Error(`Error! Status: ${request.status}`)
         };
@@ -62,7 +57,7 @@ const callAPIWeather = async(city)=>{
         showWeather(JSONResponse);
         const lat = JSONResponse.coord.lat;
         const lon = JSONResponse.coord.lon;
-        const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${keyWeather}&lang=es`);
+        const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.KEY_WEATHER}&lang=es`);
         if(!dailyRequest.ok){
             throw new Error(`Error Second Request! Status: ${request.status} `);
         };
