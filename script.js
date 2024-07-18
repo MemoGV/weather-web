@@ -35,7 +35,6 @@ const ipAPICall = async()=>{
         if(!request.ok) {
             throw new Error(`Error! status: ${request.status}`)};
     const jsonResponse = await request.json();
-    console.log(jsonResponse);
     const {city} = jsonResponse;
     callAPIWeather(city);
     } catch(error){
@@ -61,7 +60,6 @@ const callAPIWeather = async(city)=>{
         clearHTML(sectionVisibility);
         clearHTML(sectionDailyWeather);
         showWeather(JSONResponse);
-        console.log(JSONResponse);
         const lat = JSONResponse.coord.lat;
         const lon = JSONResponse.coord.lon;
         const dailyRequest = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${keyWeather}&lang=es`);
@@ -71,7 +69,6 @@ const callAPIWeather = async(city)=>{
         const dailyJSONResponse = await dailyRequest.json();
         showWeatherTime(dailyJSONResponse);
         getDailyWeather(dailyJSONResponse);
-        console.log(dailyJSONResponse);
     } catch(error){
         console.error('Error request information', error);
         showError('Ciudad no existe')
