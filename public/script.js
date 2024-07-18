@@ -1,3 +1,5 @@
+import {keyWeather, keyIp} from '../config.js'
+
 const body = document.querySelector('body');
 const currentWeather = document.querySelector('.current-weather');
 const alert = document.querySelector('.alert-message')
