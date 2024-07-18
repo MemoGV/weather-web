@@ -1,3 +1,5 @@
+import {keyWeather, keyIp} from './config.js';
+
 const body = document.querySelector('body');
 const currentWeather = document.querySelector('.current-weather');
 const alert = document.querySelector('.alert-message')
@@ -16,6 +18,9 @@ const inputText = document.querySelector('#input-text');
 const submitBtn = document.querySelector('#submit');
 const gitHubBtn = document.querySelector('#git-hub-btn');
 
+
+
+
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
     if(inputText.value === '' ){
@@ -24,7 +29,6 @@ form.addEventListener('submit', (e)=>{
     }
     callAPIWeather(inputText.value);
 })
-
 const ipAPICall = async()=>{
     try {
         const request = await fetch(`https://ipinfo.io/json?token=${keyIp}`);
@@ -73,7 +77,6 @@ const callAPIWeather = async(city)=>{
         showError('Ciudad no existe')
     }
 }
-
 const showWeather=(data)=>{
     const {name, main:{temp,temp_min,temp_max, feels_like, humidity}, weather:[arr], visibility, wind:{speed}, sys:{sunrise, sunset, country}} = data;
     printCurrentWeather(name, country, temp, arr.description, temp_min, temp_max);
@@ -83,7 +86,6 @@ const showWeather=(data)=>{
     printVisibility(visibility, sectionVisibility, 'feels-like');
     
 }
-
 const showWeatherTime =(data)=>{
     const {wind:{speed, gust} } = data.list[0];
     printSpeedWind(speed, gust, sectionWindSpeed, 'feels-like');
@@ -93,20 +95,19 @@ const showWeatherTime =(data)=>{
         const content = document.createElement('article');
         content.classList.add('box-time-weather')
         content.innerHTML = `
-            <p>${unixToTime(dt).getHours()} hrs</p>
+            <h3>${unixToTime(dt).getHours()} hrs</h3>
             <img src='https://openweathermap.org/img/wn/${icon}@2x.png' alt'Weather Icon'>
             <p>${description}</p>
             <h2>${degrees}°</h2>`
         sectionTime.appendChild(content);}
 }
-
 const getDailyWeather =(data)=>{
     const {list} = data;
     const element = document.createElement('div');
     element.classList.add('title-div-style')
     element.innerHTML= `
-        <h3>PRONOSTICO 5 DIAS</h3>
-        <img src='./calendar.svg' height=20 width=20>`
+        <h2>PRONOSTICO 5 DIAS</h2>
+        <img src='./assets/calendar.svg' height=20 width=20>`
     sectionDailyWeather.appendChild(element);
     list.forEach((va)=>{
         const {dt, main:{temp_max}, weather:[{icon}]} = va;
@@ -117,7 +118,6 @@ const getDailyWeather =(data)=>{
         }
     })
 }
-
 const getDayName =(numDay)=>{
     const dayNames = ['Dom', 'Lun', 'Mar', 'Mier', 'Jue', 'Vie', 'Sab'];
     return dayNames[numDay];
@@ -141,7 +141,7 @@ const printFeelsLike =(data, section, className)=>{
     element.classList.add(className);
     div.classList.add('title-div-style');
     div.innerHTML= `<h2>SENSACION</h2>
-        <img src='./thermometer.webp' width=32 height32>`
+        <img src='./assets/thermometer.webp' width=32 height32>`
     element.innerHTML = `
         <h3>${degrees}°</h3>
     `
@@ -154,7 +154,7 @@ const printHumidity =(data, section, className)=>{
     div.classList.add('title-div-style');
     element.classList.add(className);
     div.innerHTML=`<h2>HUMEDAD</h2>
-        <img src='./humidity.webp' width=32 height=32>`
+        <img src='./assets/humidity.webp' width=32 height=32>`
     element.innerHTML = `
         <h3>${data}%<h3/>
     `
@@ -170,32 +170,30 @@ const printSpeedWind =(data, data1, section, className)=>{
     element.classList.add(className);
     div.innerHTML=`
         <h2>VIENTO</h2>
-        <img src='./wind.svg' width=32 height=32>`
+        <img src='./assets/wind.svg' width=32 height=32>`
     element.innerHTML = `
-        <h3>${Math.ceil(VKms)} Km/h</h3>
+        <h3>${Math.ceil(VKms)} <span>Km/h</span></h3>
         <p>Viento</p>
-        <h3>${Math.ceil(RKms)} Km/h</h3>
+        <h3>${Math.ceil(RKms)} <span>Km/h</span></h3>
         <p>Rafagas</p>
     `
     section.appendChild(div);
     section.appendChild(element);
 }
-
 const printSunset=(sunrise, sunset, section, className)=>{
     const element = document.createElement('article');
     const div = document.createElement('div');
     div.classList.add('title-div-style');
     element.classList.add(className);
     div.innerHTML=`<h2>ATARDECER</h2>
-        <img src='./sunset.svg' weight=32 height=32>`
+        <img src='./assets/sunset.svg' weight=32 height=32>`
     element.innerHTML = `
-        <h3>${unixToTime(sunset).getHours()}:${unixToTime(sunset).getMinutes().toString().padStart(2, '0')} Hrs</h3>
+        <h3>${unixToTime(sunset).getHours()}:${unixToTime(sunset).getMinutes().toString().padStart(2, '0')} <span>Hrs</span></h3>
         <h4>Amancer: ${unixToTime(sunrise).getHours()}:${unixToTime(sunrise).getMinutes().toString().padStart(2, '0')} Hrs</h4>
     `
     section.appendChild(div);
     section.appendChild(element);
 }   
-
 const printVisibility=(data, section, className)=>{
     const element = document.createElement('article');
     const div = document.createElement('div');
@@ -204,10 +202,10 @@ const printVisibility=(data, section, className)=>{
     element.classList.add(className);
     div.innerHTML=`
         <h2>VISIBILIDAD</h2>
-        <img src='./eye.svg' height=32 width=32>
+        <img src='./assets/eye.svg' height=32 width=32>
     `
     element.innerHTML=`
-    <h3>${km} Km</h3>
+    <h3>${km}<span> Km</span></h3>
     `
     section.appendChild(div);
     section.appendChild(element);
@@ -226,7 +224,6 @@ const printCurrentWeather =(name, country, deg, description, minDeg, maxDeg)=>{
             <p>Maxima: ${maxDegrees}°  Minima: ${minDegrees}°</p>`
     currentWeather.appendChild(element);
 }
-
 const showError=(message)=>{
     const alert = document.createElement('p');
     alert.classList.add('alert-message');
@@ -236,27 +233,18 @@ const showError=(message)=>{
         alert.remove();
     }, 600);
 }
-
 const unixToTime =(unix)=>{
     let time = unix*1000;
     let date = new Date(time);
     return date;
 }   
-
 const clearHTML =(section)=>{
     section.innerHTML = ''
 }
 const kelvinToCentigradetemp=(temp)=>parseInt(temp - 273.15);
-
-
 inputText.addEventListener('focus', ()=>{
-    submitBtn.style.backgroundColor = 'rgb(255 255 255 / 95%)';
-});
-
+    submitBtn.style.backgroundColor = 'rgb(255 255 255 / 95%)';});
 inputText.addEventListener('blur', ()=>{
-    submitBtn.style.backgroundColor = 'rgb(255, 255, 255, .3)';
-});
-
+    submitBtn.style.backgroundColor = 'rgb(255, 255, 255, .3)';});
 gitHubBtn.addEventListener('click', ()=>{
-    window.open('https://github.com/MemoGV', 'blank');
-});
+    window.open('https://github.com/MemoGV', 'blank');});
